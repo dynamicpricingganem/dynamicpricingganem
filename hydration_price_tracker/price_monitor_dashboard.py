@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 
 st.set_page_config(page_title="Hydration Price Tracker", layout="wide")
-st.title("💧 Hydration Drink Price Tracker")
+st.title("Hydration Drink Price Tracker by GANEM STRATEGY STUDIO")
 
 DATA_FILE = "hydration_price_tracker/price_history.csv"
 
