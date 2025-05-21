@@ -2,7 +2,7 @@ name: Update Price History Daily
 
 on:
   schedule:
-    - cron: '0 13 * * *'  # every day at 1PM UTC (adjust for your timezone)
+    - cron: '0 13 * * *'
   workflow_dispatch:
 
 jobs:
@@ -30,10 +30,13 @@ jobs:
         EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
         EMAIL_TO: ${{ secrets.EMAIL_TO }}
 
-    - name: Commit and push if changed
+    - name: Set Git identity
       run: |
         git config --global user.name 'github-actions'
         git config --global user.email 'github-actions@github.com'
+
+    - name: Commit and push if changed
+      run: |
         git add hydration_price_tracker/price_history.csv
         git commit -m "Auto-update price data" || echo "No changes to commit"
         git push
