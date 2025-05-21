@@ -1,0 +1,6 @@
+hydration-price-tracker/
+├── price_monitor_dashboard.py
+├── requirements.txt
+├── README.md
+└── .streamlit/
+    └── config.toml
