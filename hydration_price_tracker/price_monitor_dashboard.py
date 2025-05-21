@@ -7,7 +7,7 @@ from datetime import datetime
 st.set_page_config(page_title="Hydration Price Tracker", layout="wide")
 st.title("💧 Hydration Drink Price Tracker")
 
-DATA_FILE = "hydration_price_tracker/price_history.csv"
+DATA_FILE = "price_history.csv"
 
 if os.path.exists(DATA_FILE):
     df = pd.read_csv(DATA_FILE)
