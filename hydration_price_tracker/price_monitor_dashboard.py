@@ -23,10 +23,7 @@ if os.path.exists(DATA_FILE):
     st.subheader("📈 Price Trends Over Time")
     fig = px.line(df, x='Timestamp', y='Price', color='Product', markers=True)
     st.plotly_chart(fig)
-st.sidebar.header("🔍 Filter")
-selected_product = st.sidebar.multiselect("Select Product:", options=sorted(df['Product'].unique()), default=list(df['Product'].unique()))
-...
-st.subheader("🎯 Promotions & Highlights")
+
     # Export HTML snapshot
     df.to_html("dashboard_snapshot.html")
 else:
