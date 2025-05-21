@@ -40,3 +40,11 @@ jobs:
         git add hydration_price_tracker/price_history.csv
         git commit -m "Auto-update price data" || echo "No changes to commit"
         git push
+        - name: Send weekly summary
+  if: github.event_name == 'schedule'
+  run: |
+    python hydration_price_tracker/generate_weekly_summary.py
+  env:
+    EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+    EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+    EMAIL_TO: ${{ secrets.EMAIL_TO }}
