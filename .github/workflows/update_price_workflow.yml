@@ -1,8 +1,9 @@
-name: Update Price History Daily
+name: Update Price History + Weekly Summary
 
 on:
   schedule:
-    - cron: '0 13 * * *'
+    - cron: '14 14 * * 1'  # Every Monday at 9:14am Mexico time (UTC-5)
+    - cron: '0 13 * * *'   # Daily 8:00am Mexico time
   workflow_dispatch:
 
 jobs:
@@ -10,41 +11,41 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v3
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
 
-    - name: Install dependencies
-      run: |
-        pip install -r hydration_price_tracker/requirements.txt
+      - name: Install dependencies
+        run: pip install -r hydration_price_tracker/requirements.txt
 
-    - name: Run update script
-      run: |
-        python hydration_price_tracker/update_prices.py
-      env:
-        EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
-        EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
-        EMAIL_TO: ${{ secrets.EMAIL_TO }}
+      - name: Run update script
+        run: |
+          python hydration_price_tracker/update_prices.py
+        env:
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
 
-    - name: Set Git identity
-      run: |
-        git config --global user.name 'github-actions'
-        git config --global user.email 'github-actions@github.com'
+      - name: Set Git identity
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
 
-    - name: Commit and push if changed
-      run: |
-        git add hydration_price_tracker/price_history.csv
-        git commit -m "Auto-update price data" || echo "No changes to commit"
-        git push
-- name: Send weekly summary
-  if: github.event_name == 'schedule'
-  run: |
-    python hydration_price_tracker/generate_weekly_summary.py
-  env:
-    EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
-    EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
-    EMAIL_TO: ${{ secrets.EMAIL_TO }}
+      - name: Commit and push if changed
+        run: |
+          git add hydration_price_tracker/price_history.csv
+          git commit -m "Auto-update price data" || echo "No changes to commit"
+          git push
+
+      - name: Send weekly summary
+        if: github.event.schedule == '14 14 * * 1'
+        run: |
+          python hydration_price_tracker/generate_weekly_summary.py
+        env:
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
