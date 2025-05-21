@@ -80,4 +80,4 @@ The dashboard shows:
 
 ---
 
-Created with ❤️ by [Your Name]
+Created with ❤️ by [Rodrigo]
