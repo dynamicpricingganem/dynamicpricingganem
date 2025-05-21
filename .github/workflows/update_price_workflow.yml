@@ -37,6 +37,6 @@ jobs:
 
     - name: Commit and push if changed
       run: |
-        git add price_history.csv
+        git add hydration_price_tracker/price_history.csv
         git commit -m "Auto-update price data" || echo "No changes to commit"
         git push
