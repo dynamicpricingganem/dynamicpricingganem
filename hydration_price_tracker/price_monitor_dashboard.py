@@ -73,11 +73,7 @@ if os.path.exists(DATA_FILE):
         promos_df = pd.read_csv(PROMOS_FILE)
 
         for _, row in promos_df.iterrows():
-            col1, col2 = st.columns([1, 3])
-            with col1:
-                st.image(row["img_url"], width=150)
-            with col2:
-                st.markdown(
+            st.success(f"{row['product']} – {row['promo']} at {row['retailer']}")
                     f"**{row['product']}**  \n"
                     f"Retailer: {row['retailer']}  \n"
                     f"Price: {row['promo']}"
