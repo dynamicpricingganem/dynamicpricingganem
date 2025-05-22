@@ -1,24 +1,32 @@
-import pandas as pd
-from datetime import datetime
-import os
 
-# Simulate current scraped data (in production, replace this with actual scraping)
-new_data = [
-    {"Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "Product": "Electrolit - Walmart", "Price": 21.00},
-    {"Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "Product": "Suerox - Chedraui", "Price": 15.25},
-    {"Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "Product": "FlashLyte - OXXO", "Price": 17.50},
-]
+import csv
+import datetime
+import requests
+from bs4 import BeautifulSoup
 
-new_df = pd.DataFrame(new_data)
+def get_oxxo_price():
+    # Simulated result from OXXO website scraping
+    return 21.00  # Replace with real logic after request/parse
 
-file_path = "hydration_price_tracker/price_history.csv"
+def get_7eleven_price():
+    # Simulated result from 7-Eleven website scraping
+    return 22.50  # Replace with real logic after request/parse
 
-# Check if file exists
-if os.path.exists(file_path):
-    # Append without header
-    new_df.to_csv(file_path, mode="a", header=False, index=False)
-else:
-    # Create new file with header
-    new_df.to_csv(file_path, mode="w", header=True, index=False)
+def scrape_prices():
+    now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    data = [
+        [now, "Suerox - OXXO", get_oxxo_price()],
+        [now, "Electrolit - 7-Eleven", get_7eleven_price()],
+    ]
+    return data
 
-print("✅ Price data updated successfully.")
+def append_to_csv(rows):
+    path = "hydration_price_tracker/price_history.csv"
+    with open(path, "a", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerows(rows)
+
+if __name__ == "__main__":
+    rows = scrape_prices()
+    append_to_csv(rows)
+    print(f"✅ Appended {len(rows)} new price rows.")
