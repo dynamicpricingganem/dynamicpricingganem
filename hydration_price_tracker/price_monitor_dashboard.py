@@ -77,7 +77,7 @@ if os.path.exists(DATA_FILE):
                 st.image(row["img_url"], width=150)
             with col2:
             st.markdown(f"**{row['product']}**  \n🏪 {row['retailer']}  \n💰 {row['promo']}")
-🏪 {row['retailer']}  
+            st.markdown(f"**{row['product']}**  \nRetailer: {row['retailer']}  \n💰 {row['promo']}")
 💰 {row['promo']}")
 else:
     st.warning("No data yet. Please upload or generate 'price_history.csv'.")
