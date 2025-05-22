@@ -5,7 +5,7 @@ import plotly.express as px
 
 st.set_page_config(layout="wide")
 st.image("ganem_logo.png", width=180)
-st.title("💧 Hydration Drink Price Tracker")
+st.title("Hydration Drink Price Tracker")
 
 try:
     df = pd.read_csv("hydration_price_tracker/price_history.csv")
