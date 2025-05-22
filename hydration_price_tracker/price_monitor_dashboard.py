@@ -69,15 +69,15 @@ if os.path.exists(DATA_FILE):
 
     # Confirmed promos only (consolidated section)
     if os.path.exists(PROMOS_FILE):
-        st.subheader("🧃 Confirmed Hydration Promos Across Retailers")
+        st.subheader(" Confirmed Hydration Promos Across Retailers")
         promos_df = pd.read_csv(PROMOS_FILE)
         for _, row in promos_df.iterrows():
             col1, col2 = st.columns([1, 3])
             with col1:
                 st.image(row["img_url"], width=150)
             with col2:
-            st.markdown(f"**{row['product']}**  \n🏪 {row['retailer']}  \n💰 {row['promo']}")
-            st.markdown(f"**{row['product']}**  \nRetailer: {row['retailer']}  \n💰 {row['promo']}")
+            st.markdown(f"**{row['product']}**  \n🏪 {row['retailer']}  \n {row['promo']}")
+            st.markdown(f"**{row['product']}**  \nRetailer: {row['retailer']}  \n {row['promo']}")
  {row['promo']}")
 else:
     st.warning("No data yet. Please upload or generate 'price_history.csv'.")
