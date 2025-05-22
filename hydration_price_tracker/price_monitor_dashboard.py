@@ -1,3 +1,4 @@
+
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -5,12 +6,10 @@ import os
 from datetime import datetime, timedelta
 
 st.set_page_config(page_title="Hydration Price Tracker", layout="wide")
-
-st.image("hydration_price_tracker/ganem_logo.png", width=200)
-st.title("Hydration Drink Price Tracker")
+st.title("💧 Hydration Drink Price Tracker")
 
 DATA_FILE = "hydration_price_tracker/price_history.csv"
-PROMOS_FILE = "hydration_price_tracker/all_confirmed_promos.csv"
+PROMO_FILE = "hydration_price_tracker/all_confirmed_promos.csv"
 
 if os.path.exists(DATA_FILE):
     df = pd.read_csv(DATA_FILE)
@@ -22,6 +21,7 @@ if os.path.exists(DATA_FILE):
     df['Brand'] = df['Brand'].fillna("Unknown")
     df['Retailer'] = df['Retailer'].fillna("Unknown")
 
+    # Sidebar filters
     st.sidebar.header("Filter")
     selected_brand = st.sidebar.multiselect("Brand:", sorted(df['Brand'].unique()), default=sorted(df['Brand'].unique()))
     selected_retailer = st.sidebar.multiselect("Retailer:", sorted(df['Retailer'].unique()), default=sorted(df['Retailer'].unique()))
@@ -37,7 +37,7 @@ if os.path.exists(DATA_FILE):
     latest[['Brand', 'Retailer']] = latest['Product'].str.extract(r'^(.*) - (.*)$')
     st.dataframe(latest[['Product', 'Brand', 'Retailer', 'Price', 'Timestamp']])
 
-    # Cross-retailer comparison
+    # Retailer comparison matrix
     st.subheader("Cross-Retailer Price Matrix")
     pivot = latest.pivot_table(index='Brand', columns='Retailer', values='Price')
     st.dataframe(pivot.style.format("${:.2f}"))
@@ -47,7 +47,7 @@ if os.path.exists(DATA_FILE):
     fig = px.line(filtered_df, x='Timestamp', y='Price', color='Product', markers=True)
     st.plotly_chart(fig, use_container_width=True)
 
-    # 30-day trends
+    # 30-day historical trends
     st.subheader("30-Day Historical Trends")
     last_30_days = df[df['Timestamp'] > datetime.now() - timedelta(days=30)]
     fig30 = px.line(last_30_days, x="Timestamp", y="Price", color="Product", line_dash="Retailer")
@@ -67,11 +67,15 @@ if os.path.exists(DATA_FILE):
     )
     st.plotly_chart(bar_fig, use_container_width=True)
 
-    # Confirmed promos section (with proper structure)
-    if os.path.exists(PROMOS_FILE):
-        st.subheader("Confirmed Hydration Promos Across Retailers")
-        promos_df = pd.read_csv(PROMOS_FILE)
+else:
+    st.warning("⚠️ 'price_history.csv' not found in hydration_price_tracker/")
 
-        for _, row in promos_df.iterrows():
-            st.success(f"{row['product']} – {row['promo']} at {row['retailer']}")
-    st.warning("No data yet. Please upload or generate 'price_history.csv'.")
+# Load confirmed promos
+if os.path.exists(PROMO_FILE):
+    st.subheader("Confirmed Hydration Promos (via scraping)")
+
+    promos_df = pd.read_csv(PROMO_FILE)
+    for _, row in promos_df.iterrows():
+        st.success(f"{row['product']} – {row['promo']} at {row['retailer']}")
+else:
+    st.info("No confirmed promos found. Please check all_confirmed_promos.csv.")
