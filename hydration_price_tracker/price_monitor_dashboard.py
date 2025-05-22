@@ -58,12 +58,6 @@ promo_file = "hydration_price_tracker/all_confirmed_promos.csv"
 if os.path.exists(promo_file):
     promo_df = pd.read_csv(promo_file)
     for idx, row in promo_df.iterrows():
-        st.markdown(
-            f"**{row['product']}**  
-"
-            f"Retailer: {row['retailer']}  
-"
-            f"Promo: {row['promo']}"
-        )
+        st.markdown(f"**{row['product']}**  \nRetailer: {row['retailer']}  \nPromo: {row['promo']}")
 else:
     st.info("No confirmed promo file found.")
