@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 st.set_page_config(page_title="Hydration Price Tracker", layout="wide")
 
 st.image("hydration_price_tracker/ganem_logo.png", width=200)
-st.title("Hydration Drink Price Tracker")
+st.title("💧 Hydration Drink Price Tracker")
 
 DATA_FILE = "hydration_price_tracker/price_history.csv"
 PROMOS_FILE = "hydration_price_tracker/all_confirmed_promos.csv"
@@ -76,7 +76,7 @@ if os.path.exists(DATA_FILE):
             with col1:
                 st.image(row["img_url"], width=150)
             with col2:
-                st.markdown(f"**{row['product']}**  
+            st.markdown(f"**{row['product']}**  \n🏪 {row['retailer']}  \n💰 {row['promo']}")
 🏪 {row['retailer']}  
 💰 {row['promo']}")
 else:
