@@ -8,7 +8,7 @@ st.set_page_config(page_title="Hydration Price Tracker", layout="wide")
 
 # Add logo
 st.image("hydration_price_tracker/ganem_logo.png", width=200)
-st.title("💧 Hydration Drink Price Tracker")
+st.title("💧 DASHBOARD CATEGORÍA HIDRATACIÓN")
 
 DATA_FILE = "hydration_price_tracker/price_history.csv"
 
