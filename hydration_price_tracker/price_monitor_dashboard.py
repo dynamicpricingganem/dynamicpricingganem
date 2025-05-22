@@ -2,68 +2,54 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import os
-from datetime import datetime, timedelta
 
-st.set_page_config(page_title="Hydration Price Tracker", layout="wide")
-st.image('hydration_price_tracker/ganem_logo.png', width=200)
+st.set_page_config(layout="wide")
+st.image("ganem_logo.png", width=180)
 st.title("💧 Hydration Drink Price Tracker")
 
-# Dynamic file path resolution
-if os.path.exists("hydration_price_tracker/price_history.csv"):
-    DATA_FILE = "hydration_price_tracker/price_history.csv"
-elif os.path.exists("price_history.csv"):
-    DATA_FILE = "price_history.csv"
-else:
-    st.error("❌ price_history.csv not found in expected locations.")
-    st.stop()
+try:
+    df = pd.read_csv("hydration_price_tracker/price_history.csv")
 
-# Load and prepare data
-df = pd.read_csv(DATA_FILE)
-df.dropna(inplace=True)
-df['Timestamp'] = pd.to_datetime(df['Timestamp'])
+    # Convert Timestamp safely
+    df['Timestamp'] = pd.to_datetime(df['Timestamp'], errors='coerce')
+    df = df.dropna(subset=['Timestamp'])
 
-# Extract brand and retailer
-df['Brand'] = df['Product'].str.extract(r'^(FlashLyte|GatorLyte|Electrolit|Suerox|Hydrolit)', expand=False)
-df['Retailer'] = df['Product'].str.extract(r'- ([\w\s\(\)]+)$', expand=False)
-df['Brand'] = df['Brand'].fillna("Unknown")
-df['Retailer'] = df['Retailer'].fillna("Unknown")
+    # Product & Retailer selectors
+    st.sidebar.header("Filter")
+    selected_product = st.sidebar.multiselect("Select Product", options=df["Product"].unique(), default=None)
+    selected_retailer = st.sidebar.multiselect("Select Retailer", options=df["Product"].str.extract(r'- (.*)')[0].unique(), default=None)
 
-# Sidebar filters
-brands = sorted(df['Brand'].unique())
-retailers = sorted(df['Retailer'].unique())
+    # Apply filters
+    if selected_product:
+        df = df[df["Product"].isin(selected_product)]
+    if selected_retailer:
+        df = df[df["Product"].str.contains('|'.join(selected_retailer))]
 
-selected_brand = st.sidebar.selectbox("Filter by Brand", ["All"] + brands)
-selected_retailer = st.sidebar.selectbox("Filter by Retailer", ["All"] + retailers)
+    # Price Trends Over Time
+    st.subheader("📈 Price Trends Over Time")
+    fig = px.line(df, x="Timestamp", y="Price", color="Product", markers=True)
+    st.plotly_chart(fig, use_container_width=True)
 
-filtered_df = df.copy()
-if selected_brand != "All":
-    filtered_df = filtered_df[filtered_df['Brand'] == selected_brand]
-if selected_retailer != "All":
-    filtered_df = filtered_df[filtered_df['Retailer'] == selected_retailer]
+    # Retailer Comparison Chart
+    st.subheader("🏪 Retailer Price Comparison")
+    latest = df.sort_values("Timestamp").drop_duplicates("Product", keep="last")
+    latest["Retailer"] = latest["Product"].str.extract(r"- (.*)")
+    bar = px.bar(latest, x="Retailer", y="Price", color="Product", barmode="group")
+    st.plotly_chart(bar, use_container_width=True)
 
-# Show filtered data
-st.subheader("📊 Price Trends Over Time")
-fig = px.line(filtered_df, x="Timestamp", y="Price", color="Product", markers=True)
-st.plotly_chart(fig, use_container_width=True)
+    # Price Table
+    st.subheader("🧾 Latest Price Table")
+    st.dataframe(latest.sort_values(by="Product")[["Timestamp", "Product", "Price"]])
 
-# Bar chart comparing latest prices
-st.subheader("🏷️ Latest Price Comparison Across Retailers")
-latest = df.sort_values("Timestamp").drop_duplicates(subset=["Product"], keep="last")
-bar_fig = px.bar(latest, x="Product", y="Price", color="Retailer", barmode="group")
-st.plotly_chart(bar_fig, use_container_width=True)
+    # Confirmed Promos
+    promo_file = "hydration_price_tracker/all_confirmed_promos.csv"
+    try:
+        promo_df = pd.read_csv(promo_file)
+        st.subheader("💸 Confirmed Hydration Promos")
+        for idx, row in promo_df.iterrows():
+            st.markdown(f"**{row['product']}** — {row['retailer']} | **{row['promo']}**")
+    except Exception as e:
+        st.warning("Promo data unavailable.")
 
-# Cross-tab matrix of all brands and all retailers
-st.subheader("📋 Price Matrix: All Brands Across All Retailers")
-pivot = latest.pivot_table(index='Brand', columns='Retailer', values='Price')
-st.dataframe(pivot.style.format("${:.2f}"))
-
-# Confirmed promos section
-st.subheader("📌 Confirmed Promos via Scraping")
-promo_file = "hydration_price_tracker/all_confirmed_promos.csv"
-if os.path.exists(promo_file):
-    promo_df = pd.read_csv(promo_file)
-    for idx, row in promo_df.iterrows():
-        st.markdown(f"**{row['product']}**  \nRetailer: {row['retailer']}  \nPromo: {row['promo']}")
-else:
-    st.info("No confirmed promo file found.")
+except Exception as e:
+    st.error("Error loading data. Please check that price_history.csv is correctly formatted and available.")
