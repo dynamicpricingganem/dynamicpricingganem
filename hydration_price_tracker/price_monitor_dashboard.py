@@ -74,9 +74,6 @@ if os.path.exists(DATA_FILE):
 
         for _, row in promos_df.iterrows():
             st.success(f"{row['product']} – {row['promo']} at {row['retailer']}")
-                    f"**{row['product']}**  \n"
-                    f"Retailer: {row['retailer']}  \n"
-                    f"Price: {row['promo']}"
                 )
 else:
     st.warning("No data yet. Please upload or generate 'price_history.csv'.")
