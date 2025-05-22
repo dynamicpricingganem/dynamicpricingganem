@@ -6,12 +6,11 @@ from datetime import datetime, timedelta
 
 st.set_page_config(page_title="Hydration Price Tracker", layout="wide")
 
-# Add logo
 st.image("hydration_price_tracker/ganem_logo.png", width=200)
-st.title("💧 Hydration Drink Price Tracker")
+st.title("Pricing Dashboard -Hydration Drinks")
 
 DATA_FILE = "hydration_price_tracker/price_history.csv"
-PROMOS_FILE = "hydration_price_tracker/oxxo_promos.csv"
+PROMOS_FILE = "hydration_price_tracker/all_confirmed_promos.csv"
 
 if os.path.exists(DATA_FILE):
     df = pd.read_csv(DATA_FILE)
@@ -23,7 +22,6 @@ if os.path.exists(DATA_FILE):
     df['Brand'] = df['Brand'].fillna("Unknown")
     df['Retailer'] = df['Retailer'].fillna("Unknown")
 
-    # Sidebar filters
     st.sidebar.header("🔍 Filter")
     selected_brand = st.sidebar.multiselect("Brand:", sorted(df['Brand'].unique()), default=sorted(df['Brand'].unique()))
     selected_retailer = st.sidebar.multiselect("Retailer:", sorted(df['Retailer'].unique()), default=sorted(df['Retailer'].unique()))
@@ -39,7 +37,7 @@ if os.path.exists(DATA_FILE):
     latest[['Brand', 'Retailer']] = latest['Product'].str.extract(r'^(.*) - (.*)$')
     st.dataframe(latest[['Product', 'Brand', 'Retailer', 'Price', 'Timestamp']])
 
-    # Retailer comparison matrix
+    # Cross-retailer comparison
     st.subheader("🏪 Cross-Retailer Price Matrix")
     pivot = latest.pivot_table(index='Brand', columns='Retailer', values='Price')
     st.dataframe(pivot.style.format("${:.2f}"))
@@ -49,13 +47,13 @@ if os.path.exists(DATA_FILE):
     fig = px.line(filtered_df, x='Timestamp', y='Price', color='Product', markers=True)
     st.plotly_chart(fig, use_container_width=True)
 
-    # 30-Day Historical Trends
+    # 30-day trends
     st.subheader("📅 30-Day Historical Trends")
     last_30_days = df[df['Timestamp'] > datetime.now() - timedelta(days=30)]
     fig30 = px.line(last_30_days, x="Timestamp", y="Price", color="Product", line_dash="Retailer")
     st.plotly_chart(fig30, use_container_width=True)
 
-    # Bar chart of retailer prices per product
+    # Retailer bar chart
     st.subheader("📊 Retailer Price Comparison")
     bar_fig = px.bar(
         latest,
@@ -69,34 +67,17 @@ if os.path.exists(DATA_FILE):
     )
     st.plotly_chart(bar_fig, use_container_width=True)
 
-    # Promo detection logic
-    st.subheader("🎯 Promo Highlights")
-    promo_msgs = []
-    for _, row in latest.iterrows():
-        product = row['Product']
-        price = row['Price']
-        if "Electrolit" in product and price <= 21.00:
-            promo_msgs.append(f"🔥 2x$42 promo likely active for **{product}**")
-        elif "Suerox" in product and price <= 15.25:
-            promo_msgs.append(f"⭐ 2x$30.50 promo detected for **{product}**")
-        elif "FlashLyte" in product and price <= 18:
-            promo_msgs.append(f"⚡ Flash deal under $18 for **{product}**")
-
-    if promo_msgs:
-        for msg in promo_msgs:
-            st.success(msg)
-    else:
-        st.info("No active promos detected.")
-
-    # NEW: Display confirmed hydration promos with images
+    # Confirmed promos only (consolidated section)
     if os.path.exists(PROMOS_FILE):
-        st.subheader("🧃 Confirmed OXXO Hydration Promos")
+        st.subheader("🧃 Confirmed Hydration Promos Across Retailers")
         promos_df = pd.read_csv(PROMOS_FILE)
-        for i, row in promos_df.iterrows():
+        for _, row in promos_df.iterrows():
             col1, col2 = st.columns([1, 3])
             with col1:
                 st.image(row["img_url"], width=150)
             with col2:
-                st.markdown(f"**{row['title']}**  \n💰 {row['promo']}")
+                st.markdown(f"**{row['product']}**  
+🏪 {row['retailer']}  
+💰 {row['promo']}")
 else:
     st.warning("No data yet. Please upload or generate 'price_history.csv'.")
