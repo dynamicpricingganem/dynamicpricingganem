@@ -4,7 +4,7 @@ import pandas as pd
 import plotly.express as px
 
 st.set_page_config(layout="wide")
-st.image("ganem_logo.png", width=180)
+st.image("hydration_price_tracker/ganem_logo.png", width=180)
 st.title("Hydration Drink Price Tracker")
 
 try:
