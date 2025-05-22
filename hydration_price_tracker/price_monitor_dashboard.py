@@ -2,10 +2,10 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 
 st.set_page_config(page_title="Hydration Price Tracker", layout="wide")
-st.title("Hydration Drink Price Tracker - GANEM")
+st.title("💧 Hydration Drink Price Tracker")
 
 DATA_FILE = "hydration_price_tracker/price_history.csv"
 
@@ -14,7 +14,7 @@ if os.path.exists(DATA_FILE):
     df.dropna(inplace=True)
     df['Timestamp'] = pd.to_datetime(df['Timestamp'])
 
-    # Extract brand and retailer more robustly
+    # Extract brand and retailer
     df['Brand'] = df['Product'].str.extract(r'^(FlashLyte|GatorLyte|Electrolit|Suerox|Hydrolit)', expand=False)
     df['Retailer'] = df['Product'].str.extract(r'- ([\w\s\(\)]+)$', expand=False)
     df['Brand'] = df['Brand'].fillna("Unknown")
@@ -45,6 +45,12 @@ if os.path.exists(DATA_FILE):
     st.subheader("📈 Price Trends Over Time")
     fig = px.line(filtered_df, x='Timestamp', y='Price', color='Product', markers=True)
     st.plotly_chart(fig, use_container_width=True)
+
+    # NEW: 30-day view
+    st.subheader("📅 30-Day Historical Trends")
+    last_30_days = df[df['Timestamp'] > datetime.now() - timedelta(days=30)]
+    fig30 = px.line(last_30_days, x="Timestamp", y="Price", color="Product", line_dash="Retailer")
+    st.plotly_chart(fig30, use_container_width=True)
 
     # Promo detection
     st.subheader("🎯 Promo Highlights")
