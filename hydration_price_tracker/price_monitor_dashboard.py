@@ -78,6 +78,6 @@ if os.path.exists(DATA_FILE):
             with col2:
             st.markdown(f"**{row['product']}**  \n🏪 {row['retailer']}  \n💰 {row['promo']}")
             st.markdown(f"**{row['product']}**  \nRetailer: {row['retailer']}  \n💰 {row['promo']}")
-💰 {row['promo']}")
+ {row['promo']}")
 else:
     st.warning("No data yet. Please upload or generate 'price_history.csv'.")
