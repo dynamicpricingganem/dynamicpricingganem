@@ -52,6 +52,11 @@ latest = df.sort_values("Timestamp").drop_duplicates(subset=["Product"], keep="l
 bar_fig = px.bar(latest, x="Product", y="Price", color="Retailer", barmode="group")
 st.plotly_chart(bar_fig, use_container_width=True)
 
+# Cross-tab matrix of all brands and all retailers
+st.subheader("📋 Price Matrix: All Brands Across All Retailers")
+pivot = latest.pivot_table(index='Brand', columns='Retailer', values='Price')
+st.dataframe(pivot.style.format("${:.2f}"))
+
 # Confirmed promos section
 st.subheader("📌 Confirmed Promos via Scraping")
 promo_file = "hydration_price_tracker/all_confirmed_promos.csv"
