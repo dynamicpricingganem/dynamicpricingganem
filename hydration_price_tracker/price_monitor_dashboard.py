@@ -6,6 +6,7 @@ import os
 from datetime import datetime, timedelta
 
 st.set_page_config(page_title="Hydration Price Tracker", layout="wide")
+st.image('hydration_price_tracker/ganem_logo.png', width=200)
 st.title("💧 Hydration Drink Price Tracker")
 
 # Dynamic file path resolution
