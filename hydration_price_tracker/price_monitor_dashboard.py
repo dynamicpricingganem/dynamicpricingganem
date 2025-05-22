@@ -11,6 +11,7 @@ st.image("hydration_price_tracker/ganem_logo.png", width=200)
 st.title("Pricing Dashboard - Hidratación")
 
 DATA_FILE = "hydration_price_tracker/price_history.csv"
+PROMOS_FILE = "hydration_price_tracker/oxxo_promos.csv"
 
 if os.path.exists(DATA_FILE):
     df = pd.read_csv(DATA_FILE)
@@ -43,18 +44,18 @@ if os.path.exists(DATA_FILE):
     pivot = latest.pivot_table(index='Brand', columns='Retailer', values='Price')
     st.dataframe(pivot.style.format("${:.2f}"))
 
-    # Price trends over time
+    # Price trends
     st.subheader("📈 Price Trends Over Time")
     fig = px.line(filtered_df, x='Timestamp', y='Price', color='Product', markers=True)
     st.plotly_chart(fig, use_container_width=True)
 
-    # 30-Day trends
+    # 30-Day Historical Trends
     st.subheader("📅 30-Day Historical Trends")
     last_30_days = df[df['Timestamp'] > datetime.now() - timedelta(days=30)]
     fig30 = px.line(last_30_days, x="Timestamp", y="Price", color="Product", line_dash="Retailer")
     st.plotly_chart(fig30, use_container_width=True)
 
-    # NEW: Retailer price bar chart per product
+    # Bar chart of retailer prices per product
     st.subheader("📊 Retailer Price Comparison")
     bar_fig = px.bar(
         latest,
@@ -68,7 +69,7 @@ if os.path.exists(DATA_FILE):
     )
     st.plotly_chart(bar_fig, use_container_width=True)
 
-    # Promo detection
+    # Promo detection logic
     st.subheader("🎯 Promo Highlights")
     promo_msgs = []
     for _, row in latest.iterrows():
@@ -86,5 +87,17 @@ if os.path.exists(DATA_FILE):
             st.success(msg)
     else:
         st.info("No active promos detected.")
+
+    # NEW: Display confirmed hydration promos with images
+    if os.path.exists(PROMOS_FILE):
+        st.subheader("🧃 Confirmed OXXO Hydration Promos")
+        promos_df = pd.read_csv(PROMOS_FILE)
+        for i, row in promos_df.iterrows():
+            col1, col2 = st.columns([1, 3])
+            with col1:
+                st.image(row["img_url"], width=150)
+            with col2:
+                st.markdown(f"**{row['title']}**  
+💰 {row['promo']}")
 else:
     st.warning("No data yet. Please upload or generate 'price_history.csv'.")
