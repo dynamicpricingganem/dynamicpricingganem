@@ -8,7 +8,7 @@ st.set_page_config(page_title="Hydration Price Tracker", layout="wide")
 
 # Add logo
 st.image("hydration_price_tracker/ganem_logo.png", width=200)
-st.title("💧 DASHBOARD CATEGORÍA HIDRATACIÓN")
+st.title("Pricing Dashboard - Hidratación")
 
 DATA_FILE = "hydration_price_tracker/price_history.csv"
 
@@ -17,7 +17,6 @@ if os.path.exists(DATA_FILE):
     df.dropna(inplace=True)
     df['Timestamp'] = pd.to_datetime(df['Timestamp'])
 
-    # Extract brand and retailer
     df['Brand'] = df['Product'].str.extract(r'^(FlashLyte|GatorLyte|Electrolit|Suerox|Hydrolit)', expand=False)
     df['Retailer'] = df['Product'].str.extract(r'- ([\w\s\(\)]+)$', expand=False)
     df['Brand'] = df['Brand'].fillna("Unknown")
@@ -39,21 +38,35 @@ if os.path.exists(DATA_FILE):
     latest[['Brand', 'Retailer']] = latest['Product'].str.extract(r'^(.*) - (.*)$')
     st.dataframe(latest[['Product', 'Brand', 'Retailer', 'Price', 'Timestamp']])
 
-    # Retailer comparison
+    # Retailer comparison matrix
     st.subheader("🏪 Cross-Retailer Price Matrix")
     pivot = latest.pivot_table(index='Brand', columns='Retailer', values='Price')
     st.dataframe(pivot.style.format("${:.2f}"))
 
-    # Price trends
+    # Price trends over time
     st.subheader("📈 Price Trends Over Time")
     fig = px.line(filtered_df, x='Timestamp', y='Price', color='Product', markers=True)
     st.plotly_chart(fig, use_container_width=True)
 
-    # 30-day view
+    # 30-Day trends
     st.subheader("📅 30-Day Historical Trends")
     last_30_days = df[df['Timestamp'] > datetime.now() - timedelta(days=30)]
     fig30 = px.line(last_30_days, x="Timestamp", y="Price", color="Product", line_dash="Retailer")
     st.plotly_chart(fig30, use_container_width=True)
+
+    # NEW: Retailer price bar chart per product
+    st.subheader("📊 Retailer Price Comparison")
+    bar_fig = px.bar(
+        latest,
+        x="Retailer",
+        y="Price",
+        color="Brand",
+        barmode="group",
+        text="Price",
+        hover_data=["Product"],
+        title="Prices by Retailer per Brand"
+    )
+    st.plotly_chart(bar_fig, use_container_width=True)
 
     # Promo detection
     st.subheader("🎯 Promo Highlights")
