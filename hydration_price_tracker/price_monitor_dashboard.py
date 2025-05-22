@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 st.set_page_config(page_title="Hydration Price Tracker", layout="wide")
 
 st.image("hydration_price_tracker/ganem_logo.png", width=200)
-st.title("Pricing Dashboard -Hydration Drinks")
+st.title("Hydration Drink Price Tracker")
 
 DATA_FILE = "hydration_price_tracker/price_history.csv"
 PROMOS_FILE = "hydration_price_tracker/all_confirmed_promos.csv"
