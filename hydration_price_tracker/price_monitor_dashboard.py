@@ -5,6 +5,9 @@ import os
 from datetime import datetime, timedelta
 
 st.set_page_config(page_title="Hydration Price Tracker", layout="wide")
+
+# Add logo
+st.image("ganem_logo.png", width=200)
 st.title("💧 Hydration Drink Price Tracker")
 
 DATA_FILE = "hydration_price_tracker/price_history.csv"
@@ -46,7 +49,7 @@ if os.path.exists(DATA_FILE):
     fig = px.line(filtered_df, x='Timestamp', y='Price', color='Product', markers=True)
     st.plotly_chart(fig, use_container_width=True)
 
-    # NEW: 30-day view
+    # 30-day view
     st.subheader("📅 30-Day Historical Trends")
     last_30_days = df[df['Timestamp'] > datetime.now() - timedelta(days=30)]
     fig30 = px.line(last_30_days, x="Timestamp", y="Price", color="Product", line_dash="Retailer")
